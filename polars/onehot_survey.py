@@ -5,16 +5,16 @@ def onehot_multichoices(
 ) -> pl.DataFrame:
     multichoice_dfs = []
     for col in multichoice_cols:
-        exploded_df = data.select(
+        col_df = data.select(
             index_col,
             pl.col(col).str.split(pattern)
         )
         multichoice_dfs.append(
-            exploded_df
+            col_df
             .group_by(index_col)
             .agg(
                 pl.col(col).list.contains(val).first().cast(pl.Int8).suffix(f"__{val}")
-                for val in exploded_df.explode(col)[col].unique().to_list()
+                for val in col_df.explode(col)[col].unique().to_list()
             )
             .select(pl.all().exclude(index_col))
         )
