@@ -15,7 +15,7 @@ def onehot_multichoices(
             .agg(
                 pl.col(col).list.contains(val).first().cast(pl.Int8).suffix(f"__{val}")
                 for val in col_df.explode(col)[col].unique().to_list()
-            )
+                )
             .select(pl.all().exclude(index_col))
         )
     return pl.concat([data] + multichoice_dfs, how="horizontal")
