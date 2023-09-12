@@ -2,11 +2,16 @@ import polars as pl
 
 
 def onehot_multichoices(
-    data: pl.DataFrame, multichoice_cols: list[str], pattern: str
+    data: pl.DataFrame, multichoice_pat: str
 ) -> pl.DataFrame:
+    multichoice_cols = data.select(
+        col
+        for col in data.select(pl.col(pl.Utf8)).columns
+        if data[col].str.contains(multichoice_pat).any()
+    ).columns
     multichoice_dfs = []
     for col in multichoice_cols:
-        col_df = data.select(pl.col(col).str.split(pattern))
+        col_df = data.select(pl.col(col).str.split(multichoice_pat))
         multichoice_dfs.append(
             col_df.select(
                 pl.col(col).list.contains(val).cast(pl.Int8).suffix(f"__{val}")
